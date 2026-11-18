@@ -1,19 +1,20 @@
-//10 раз в секунду
+//20 раз в секунду
 void UV_current_control(void)
 {
    
 #define PWR_MAX 100000
 //Коэффициенты ПИД
-  static float Kp=2;
-  static float Ki=1;
-  static float Kd=0;
-  static double To=0.1;  
+  static float Kp=40;    // uA/nW, tuned 2026-11-18 from 10->25 mA step (ImpulsPower.csv), 20 Hz, no D
+  static float Ki=2400;  // uA/(nW*s), integral term
+  static float Kd=0;     // uA*s/nW, derivative on measurement (unused: see PID_tuning_report.pdf)
+  static double To=0.05; // 20 Hz call rate 
   
   //Память ПИД
   static double P=0;
   static double I=0;
   static double D=0;
-  static float lastErr=0;
+  static float lastValue=0;  // пред. значение сигнала (для D по измерению)
+  static int fFirst=1;       // первый вызов: затравка lastValue
   
   static int fStopIntegration=0;
  
@@ -33,7 +34,9 @@ void UV_current_control(void)
   
   P=Kp*Err;
   if(!fStopIntegration)I=I+Ki*To*Err;
-  D=(Kd*(Err-lastErr))/To;
+  //Производная по сигналу (а не по ошибке). При Kd=0 член выключен
+  if(fFirst){ lastValue=value; fFirst=0; }
+  D=Kd*(lastValue-value)/To;
   
   
   if(I>PWR_MAX)I=PWR_MAX;
@@ -53,7 +56,7 @@ void UV_current_control(void)
   else fStopIntegration=0;
   
   
-  lastErr=Err;
+  lastValue=value;
   
   IUV_cur=Out/1000;
   
