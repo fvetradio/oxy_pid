@@ -12,7 +12,7 @@ Description: 		Sidestream oximeter
 Number of channels:	2
 Sampling frequency:	100 Hz
 
-UV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mAUV-Led current, mA;Luminescence power(p-p), nW;
+UV-Led current, mA;Luminescence power(p-p), nW;
 10,000000;32,163902;
 10,000000;32,162567;
 10,000000;32,160561;
