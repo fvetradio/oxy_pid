@@ -3,6 +3,8 @@ void UV_current_control(void)
 {
    
 #define PWR_MAX 100000
+#define BLIND_NW   0.0f   // н¬т; "ниже порога" детектора (p-p прижимаетс€ к 0)
+#define BLIND_RAMP 200    // мкј за вызов 20 √ц => ~+4 мј/с м€гкий подъЄм тока в слепой зоне
 // оэффициенты ѕ»ƒ
   static float Kp=40;    // uA/nW, tuned 2026-11-18 from 10->25 mA step (ImpulsPower.csv), 20 Hz, no D
   static float Ki=2400;  // uA/(nW*s), integral term
@@ -29,6 +31,23 @@ void UV_current_control(void)
   //¬ходные параметры
   value=Pow_lum;
   set_value=ct.PowRed_target;
+  //=== —лепа€ зона детектора: измерение ниже порога (value==0) ===
+  // ќшибку (уставка - 0) вслепую Ќ≈ интегрируем: ток м€гко поднимаем на BLIND_RAMP
+  // за вызов, пока измерение не вернЄтс€. »наче интегратор накручивает
+  // ток вслепую и раскачивает контур на малом свечении
+  // (см. low curent generation.png). ¬не слепой зоны работает обычный ѕ»ƒ, коэффициенты не трогались.
+  if(value<=BLIND_NW)
+  {
+    I=I+BLIND_RAMP;            // м€гкий подъЄм тока вслепую, без накрутки ошибки
+    if(I>PWR_MAX)I=PWR_MAX;
+    Out=(float)I;
+    if(Out>PWR_MAX)Out=PWR_MAX;
+    if(Out<800)Out=800;        // нижний предел тока, как в основном пути
+    fStopIntegration=0;         // интегратор разблокирован дл€ обычной работы после выхода из зоны
+    fFirst=1;                   // до D: после возврата измерений lastValue инициализуетс€ заново, без броска
+    IUV_cur=Out/1000;
+    return;
+  }
   
   Err=set_value-value;
   
